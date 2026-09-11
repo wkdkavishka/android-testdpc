@@ -1,3 +1,58 @@
+<!-- CBA FORK -->
+# TestDPC — CBA kiosk fork
+
+A fork of Google's [TestDPC](https://github.com/googlesamples/android-testdpc) at tag
+`v9.0.12`, used as device owner for a locked-down handset. It carries build fixes that
+upstream `v9.0.12` needs in order to compile at all, and will carry a password gate on
+kiosk exit.
+
+Everything below the divider is Google's original README, unchanged.
+
+## Provision a device by QR
+
+Factory reset the phone, then tap the welcome screen six times to open the QR scanner and
+scan this:
+
+<img src="dist/provisioning-qr.png" alt="Device owner provisioning QR" width="320">
+
+The phone downloads [`dist/testdpc-kiosk.apk`](dist/testdpc-kiosk.apk), checks it was signed
+by our key, installs it and makes it device owner. The payload is
+[`dist/provisioning.json`](dist/provisioning.json); regenerate the image with:
+
+```bash
+python3 -c "import json;print(json.dumps(json.load(open('dist/provisioning.json')),separators=(',',':')),end='')" \
+  | qrencode -o dist/provisioning-qr.png -s 8 -m 3 -l M
+```
+
+### Things that will bite you
+
+- **The QR only works on a factory-reset device.** It cannot re-enroll a phone that already
+  has a device owner.
+- **The repo must stay public.** The setup wizard downloads the APK with no credentials, so
+  a private repo breaks provisioning entirely.
+- **The checksum pins our signing certificate**, not the file, so it survives a rebuild. It
+  changes only if the signing key changes, which would mean a new QR.
+- **No Wi-Fi credentials are in this QR**, deliberately, because they would be a secret in a
+  public repo. The phone needs a network before it can download. To embed them for your own
+  use, add `PROVISIONING_WIFI_SSID` and `PROVISIONING_WIFI_PASSWORD` to a local copy of the
+  JSON and do not commit it.
+- **Do not add `android:testOnly="true"` to a build meant for QR provisioning.** The
+  installer used by provisioning does not pass the flag that permits test-only packages, so
+  the install is expected to fail.
+
+### Build and sign
+
+See `.github/copilot-instructions.md` for the architecture and `AI-MD/` for detail.
+
+```bash
+export ANDROID_HOME=/path/to/android/sdk
+bazel build testdpc
+```
+
+The signing keystore is deliberately **not** in this repository.
+
+---
+
 Test Device Policy Control (Test DPC) App
 =========================================
 

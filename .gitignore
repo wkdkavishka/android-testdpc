@@ -6,3 +6,11 @@ bazel-testlogs
 .idea
 # Personal, per-developer preferences
 CLAUDE.local.md
+
+# Signing material - never commit. The real keystore lives outside this tree,
+# in ~/keystores/, so it cannot be added by accident.
+*.jks
+*.keystore
+*.p12
+*.pass
+*.idsig
