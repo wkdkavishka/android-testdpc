@@ -4,3 +4,5 @@ bazel-out
 bazel-testlogs
 **/*.iml
 .idea
+# Personal, per-developer preferences
+CLAUDE.local.md

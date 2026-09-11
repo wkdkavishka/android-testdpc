@@ -2,7 +2,7 @@ workspace(name = "testdpc")
 
 android_sdk_repository(
     name = "androidsdk",
-    api_level = 34,
+    api_level = 35,
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -49,7 +49,7 @@ maven_install(
         "androidx.appcompat:appcompat-resources:1.6.1",
         "androidx.collection:collection:1.2.0",
         "androidx.constraintlayout:constraintlayout:2.1.3",
-        "androidx.core:core:1.6.0",
+        "androidx.core:core:1.9.0",
         "androidx.enterprise:enterprise-feedback:1.1.0",
         "androidx.legacy:legacy-support-core-ui:1.0.0",
         "androidx.legacy:legacy-support-v13:1.0.0",
@@ -100,6 +100,10 @@ http_archive(
     patch_cmds = [
         "ed -s main/java/com/google/android/setupcompat/logging/ScreenKey.java <<<$',s/Creator<>/Creator<ScreenKey>/g\nw'",
         "ed -s main/java/com/google/android/setupcompat/logging/SetupMetric.java <<<$',s/Creator<>/Creator<SetupMetric>/g\nw'",
+        # Bazel 6.5's bundled manifest merger predates <queries><provider> and
+        # rejects it for carrying no android:name. It is only a package-visibility
+        # hint, and TestDPC already holds QUERY_ALL_PACKAGES, so dropping it is a no-op.
+        "ed -s partnerconfig/AndroidManifest.xml <<<$'g/<provider android:authorities/d\nw'",
     ],
     url = "https://android.googlesource.com/platform/external/setupcompat/+archive/2ce41c8f4de550b5186233cec0a722dd0ffd9a84.tar.gz",
 )
